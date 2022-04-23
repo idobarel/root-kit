@@ -74,7 +74,7 @@ class Cracker():
         else:
             self.activate = hashlib.sha256
         self.hash = h
-        with open(wordlist, "r") as f:
+        with open(wordlist, "rb") as f:
             data = f.read().splitlines()
             f.close()
         self.wordlists = self.split(data, 5)
@@ -83,7 +83,7 @@ class Cracker():
 
     def compare(self, wl: list):
         for word in wl:
-            h = self.activate(word.encode()).hexdigest()
+            h = self.activate(word).hexdigest()
             if h == self.hash:
                 print(colored(f"[+] Found >> {word}", "green"))
                 self.found = True
