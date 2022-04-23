@@ -1,0 +1,7 @@
+argparse
+termcolor
+scapy
+bs4
+requests
+alive_progress
+tabulate
