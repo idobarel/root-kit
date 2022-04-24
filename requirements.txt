@@ -5,3 +5,4 @@ bs4
 requests
 alive_progress
 tabulate
+eel
