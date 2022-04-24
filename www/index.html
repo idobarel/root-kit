@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Root Kit GUI</title>
+    <script src="eel.js"></script>
+    <script>
+        window.addEventListener("resize", function () {
+            window.resizeTo(1224, 600);
+        });
+    </script>
+    <script>
+        function scan() {
+            eel.scan()
+        }
+        function block() {
+            var ip = document.getElementById("block-ip-inp").value
+            eel.block(ip)
+        }
+        function mitm() {
+            var ip = document.getElementById("mitm-ip-inp").value
+            eel.mitm(ip)
+        }
+        function scrape() {
+            var url = document.getElementById("url-to-scrape").value
+            eel.scrape(url)
+        }
+    </script>
+    <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;1,100;1,200;1,300;1,400&display=swap');
+
+        body {
+            background-color: #191f22;
+            font-family: poppins;
+            overflow-y: hidden;
+            overflow-x: hidden;
+            user-select: none;
+            /* supported by Chrome and Opera */
+            -webkit-user-select: none;
+            /* Safari */
+            -khtml-user-select: none;
+            /* Konqueror HTML */
+            -moz-user-select: none;
+            /* Firefox */
+            -ms-user-select: none;
+            /* Internet Explorer/Edge */
+            user-select: none;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: #273136;
+            border-radius: 2%;
+            width: 20%;
+            height: 100%;
+        }
+
+        .header {
+            position: relative;
+            font-size: 200%;
+            color: #000000;
+            font-weight: 1000;
+            width: fit-content;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .header a {
+            color: #000000;
+            text-decoration: none;
+        }
+
+        .sidebar ul {
+            position: relative;
+            margin-top: -10%;
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin: 10%;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            font-size: 200%;
+            color: rgb(183, 181, 181);
+        }
+
+        #logo {
+            margin-top: 180px;
+            margin-left: 65px;
+        }
+
+        .container {
+            position: absolute;
+            left: 20%;
+            /* top: 0; */
+            height: 99%;
+            width: 79%;
+        }
+
+        #hompage {
+            top: 0;
+        }
+
+        #homepage .header {
+            margin-top: 0px;
+        }
+
+        #homepage .description {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #47565d;
+            width: 70%;
+            height: fit-content;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #homepage .description .header {
+            position: relative;
+            font-size: 150%;
+        }
+
+        #homepage .description .text {
+            text-align: center;
+        }
+
+        #scan {
+            top: 100%;
+        }
+
+        #scan .main {
+            width: 100%;
+            height: fit-content;
+            /* border: 1px solid magenta; */
+        }
+
+        #scan .main button {
+            padding: 5%;
+            font-size: 200%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            position: relative;
+            left: 15%;
+            margin-top: 100px;
+        }
+
+        #scan .main #output {
+            width: 50%;
+            position: absolute;
+            height: 50%;
+            background-color: #47565d;
+            border: 1px solid magenta;
+            right: 10%;
+            top: 50%;
+            transform: translate(-10%, -50%);
+            text-align: center;
+        }
+
+        #block {
+            top: 200%;
+        }
+
+        #block .main {
+            width: 100%;
+            height: fit-content;
+            /* border: 1px solid magenta; */
+        }
+
+        #block .main form {
+            position: relative;
+            width: 30%;
+            /* border: 1px solid magenta; */
+            align-items: center;
+            left: 6%;
+            margin-top: 100px;
+        }
+
+        #block .main form input {
+            position: relative;
+            width: 90%;
+            height: 50px;
+            background-color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: black;
+            font-size: 200%;
+        }
+
+        #block .main #output {
+            width: 50%;
+            position: absolute;
+            height: 50%;
+            background-color: #47565d;
+            border: 1px solid magenta;
+            right: 10%;
+            top: 50%;
+            transform: translate(-10%, -50%);
+            text-align: center;
+        }
+
+        #mitm {
+            top: 300%;
+        }
+
+        #mitm .main {
+            width: 100%;
+            height: fit-content;
+            /* border: 1px solid magenta; */
+        }
+
+        #mitm .main form {
+            position: relative;
+            width: 30%;
+            /* border: 1px solid magenta; */
+            align-items: center;
+            left: 6%;
+            margin-top: 100px;
+        }
+
+        #mitm .main form input {
+            position: relative;
+            width: 90%;
+            height: 50px;
+            background-color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: black;
+            font-size: 200%;
+        }
+
+        #mitm .main #output {
+            width: 50%;
+            position: absolute;
+            height: 50%;
+            background-color: #47565d;
+            border: 1px solid magenta;
+            right: 10%;
+            top: 50%;
+            transform: translate(-10%, -50%);
+            text-align: center;
+        }
+
+        #scrape {
+            top: 400%;
+        }
+
+        #scrape .main {
+            width: 100%;
+            height: fit-content;
+            /* border: 1px solid magenta; */
+        }
+
+        #scrape .main form {
+            position: relative;
+            width: 30%;
+            /* border: 1px solid magenta; */
+            align-items: center;
+            left: 6%;
+            margin-top: 100px;
+        }
+
+        #scrape .main form input {
+            position: relative;
+            width: 90%;
+            height: 50px;
+            background-color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: black;
+            font-size: 200%;
+        }
+
+        #scrape .main #output {
+            width: 50%;
+            position: absolute;
+            height: 50%;
+            background-color: #47565d;
+            border: 1px solid magenta;
+            right: 10%;
+            top: 50%;
+            transform: translate(-10%, -50%);
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <p class="header"><a href="#homepage">RootKit</a></p>
+        <ul>
+            <li><a href="#scan"><i class='bx bx-scan'></i> Scan</a></li>
+            <li><a href="#block"><i class='bx bx-block'></i> Block</a></li>
+            <li><a href="#mitm"><i class='bx bx-wifi'></i> MITM</a></li>
+            <li><a href="#scrape"><i class='bx bxs-envelope'></i> Scrape</a></li>
+            <li id="logo"><a href=""><i class='bx bxl-dribbble bx-lg'></a></i></li>
+        </ul>
+    </div>
+    <div class="container" id="homepage">
+        <p class="header">
+            GodZilo's RootKit
+        </p>
+        <div class="description">
+            <p class="header">
+                What Is A Root-Kit ?
+            </p>
+            <p class="text">
+                A rootkit is a collection of computer software [tools], typically malicious,
+                designed to enable access to a computer or an area of its software that
+                is not otherwise allowed.
+            </p>
+            <p class="header">
+                So What Is This App ?
+            </p>
+            <p class="text">
+                GodZilo's Root-Kit, is all the tools that I've created to help me hack
+                This app main propose is to make hacking begginer friendly, with simple GUI
+                application.
+            </p>
+            <p class="header">
+                About Me :
+            </p>
+            <p class="text">
+                Hey! My name is Ido Barel, but you can call me GodZilo.<br>
+                I'm 18 years old from Israel. And I lerned computer sience at high school.
+                For now until Im joining the military, I decided I want to lern cyber secuirty.
+                This is one of many projects available at my github page.
+            </p>
+        </div>
+    </div>
+    <div class="container" id="scan">
+        <p class="header">
+            Network Scanner
+        </p>
+        <div class="main">
+            <button onclick="scan();">
+                Scan!
+            </button>
+            <div id="output">
+                Output Will Be Inside The Terminal Window!
+            </div>
+        </div>
+    </div>
+    <div class="container" id="block">
+        <p class="header">
+            Network Blocker
+        </p>
+        <div class="main">
+            <form>
+                <input type="text" id="block-ip-inp" placeholder="IP To Block" required><br>
+                <input type="submit" onclick="block();" value="Block!">
+            </form>
+            <div id="output">
+                Output Will Be Inside The Terminal Window!<br>
+                To Stop, Press Enter In The Terminal!
+            </div>
+        </div>
+    </div>
+    <div class="container" id="mitm">
+        <p class="header">
+            Man In The Middle
+        </p>
+        <div class="main">
+            <form>
+                <input type="text" id="mitm-ip-inp" placeholder="IP To Target" required><br>
+                <input type="submit" onclick="mitm();" value="Start!">
+            </form>
+            <div id="output">
+                Output Will Be Inside The Terminal Window!<br>
+                To Stop, Press Enter In The Terminal!
+            </div>
+        </div>
+    </div>
+    <div class="container" id="scrape">
+        <p class="header">
+            Email Scraper
+        </p>
+        <div class="main">
+            <form>
+                <input type="text" id="url-to-scrape" placeholder="URL To Target" required><br>
+                <input type="submit" onclick="scrape();" value="Start!">
+            </form>
+            <div id="output">
+                Use The Terminal To Control The Tool!
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
