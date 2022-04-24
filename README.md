@@ -4,7 +4,7 @@ All The Tools You Need To Start Hacking!
 
 # Installation
 
-```
+```bash
 # Clone the repository:
 $ git clone https://github.com/idobarel/root-kit.git
 
