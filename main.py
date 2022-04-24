@@ -551,7 +551,7 @@ def main():
 if __name__ == "__main__":
     if getArgs() == "gui":
         print(colored("[+] Running GUI Application.", "green", attrs=["bold"]))
-        eel.init('/home/ido/.local/bin/www')
+        eel.init('/usr/local/bin//www')
         eel.start("index.html", size=(1224, 600), position=(300, 200))
     else:
         main()
