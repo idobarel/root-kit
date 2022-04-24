@@ -14,7 +14,7 @@ $ cd root-kit
 # Give permissions to install.sh:
 $ chmod +x install.sh
 
-# Run install.sh | Download the requirements and install the setup
+# Run install.sh | Download the requirements and install the app
 $ ./install.sh
 
 # Run the app:
