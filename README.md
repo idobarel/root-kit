@@ -1,7 +1,6 @@
 # root-kit
 
-_I Build Things That Break Things.<br>
-https://idobarel.w3spaces.com/ > Root-Kit's Website!_
+_I Build Things That Break Things._<br>
 
 # Installation
 
